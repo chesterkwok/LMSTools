@@ -80,6 +80,9 @@ class LMSMenuItemBase(object):
         else:
             return None
 
+    def __repr__(self):
+        return "< {} {}".format( self.__class__, self.text )
+
 class NextMenuItem(LMSMenuItemBase):
     """Menu item which has no other purpose than to create a new submenu."""
 
@@ -223,3 +226,27 @@ class PlaylistMenuItem(LMSMenuItemBase):
 class AudioMenuItem(PlaylistMenuItem):
     """Audio menu item. Basically the same as a playlist."""
     pass
+
+
+class TidalMenuItem(LMSMenuItemBase):
+    """Menu item which has no other purpose than to create a new submenu."""
+
+    def __init__(self, player=None, menuitem=None, base=None):
+        super(TidalMenuItem, self).__init__(player=player,
+                                           menuitem=menuitem,
+                                           base=base)
+        self._cmd = self.build_cmd(menuitem)
+
+
+    @property
+    def cmd(self):
+        """
+        :rtype: str
+        :returns: command string for next menu
+
+        Get command string for submenu.
+        """
+        return self._cmd
+
+
+

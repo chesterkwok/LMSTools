@@ -3,7 +3,8 @@ import json
 from .menuitems import (NextMenuItem,
                        PlaylistMenuItem,
                        SearchMenuItem,
-                       AudioMenuItem)
+                       AudioMenuItem,
+                        TidalMenuItem)
 
 
 class LMSMenuException(Exception):
@@ -90,7 +91,7 @@ class LMSMenuHandler(object):
         with open(filename, "w") as dumpfile:
             json.dump(menu, dumpfile, indent=4)
 
-    def getMenu(self, menucmd):
+    def getMenu(self, menucmd, type = None ):
         """
         :type menucmd: str, list
         :param menucmd: command to request next menu from server
@@ -100,17 +101,23 @@ class LMSMenuHandler(object):
         Generate menu from the supplied menu command.
         """
         raw = self._request(menucmd)
-        processed = self._process_menu(raw)
+        processed = self._process_menu(raw, type = type )
 
         return processed
 
-    def _process_menu(self, raw_menu):
+    def _process_menu(self, raw_menu, type = None ):
 
         processed = []
 
-        for item in raw_menu.get("item_loop"):
+        loop_param = 'item_loop' if 'item_loop' in raw_menu else 'loop_loop'
 
-            menutype = item.get("type")
+        for item in raw_menu.get(loop_param):
+
+            if type:
+                menutype = type
+            else:
+                menutype = item.get("type")
+
             style = item.get("style")
 
             kwargs = {"player": self.player,
@@ -125,6 +132,9 @@ class LMSMenuHandler(object):
 
             elif menutype == "search":
                 entry = SearchMenuItem(**kwargs)
+
+            elif menutype == "tidal_menu":
+                entry = TidalMenuItem(**kwargs)
 
             else:
                 entry = NextMenuItem(**kwargs)
